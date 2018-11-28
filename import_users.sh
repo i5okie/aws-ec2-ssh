@@ -174,9 +174,10 @@ function copy_ssh_key() {
     if [ "${SSHKEY}" ]
     then
         echo "${SSHKEY}" > "${sshkeyfile}"
-        /bin/chown -R "${username}":"${username}" "${sshdir}"
-        /bin/chmod 600 "${sshkeyfile}"
     fi
+
+    /bin/chown -R "${username}:${username}" "${sshdir}"
+    /bin/chmod 600 "${sshkeyfile}"
 }
 
 # Create or update a local user based on info from the IAM group
