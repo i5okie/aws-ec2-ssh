@@ -158,6 +158,27 @@ function get_clean_sudoers_users() {
     done
 }
 
+# Copy ssh private key to users directory
+function copy_ssh_key() {
+    local username
+    local sshdir
+    local sshkeyfile
+
+    username="${1}"
+    sshdir="$(eval echo ~$username)/.ssh"
+    sshkeyfile="${sshdir}/id_rsa"
+
+    mkdir -p "${sshdir}"
+    touch "${sshkeyfile}"
+
+    if [ "${SSHKEY}" ]
+    then
+        echo "${SSHKEY}" > "${sshkeyfile}"
+        /bin/chown -R "${username}":"${username}" "${sshdir}"
+        /bin/chmod 600 "${sshkeyfile}"
+    fi
+}
+
 # Create or update a local user based on info from the IAM group
 function create_or_update_local_user() {
     local username
@@ -186,6 +207,8 @@ function create_or_update_local_user() {
         log "Created new user ${username}"
     fi
     /usr/sbin/usermod -a -G "${localusergroups}" "${username}"
+
+    copy_ssh_key "${username}"
 
     # Should we add this user to sudo ?
     if [[ ! -z "${SUDOERS_GROUPS}" ]]
